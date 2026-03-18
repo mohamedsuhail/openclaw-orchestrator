@@ -1,5 +1,7 @@
 # openclaw-orchestrator
 
+# Selected by OpenClaw team for 5000 CLAW tokens!
+
 Adaptive multi-agent orchestration for [OpenClaw](https://openclaw.app) gateways.
 
 Break down complex goals into tasks, route them to specialized agents, and iterate until done — all driven by an LLM planner with a real-time web dashboard.
