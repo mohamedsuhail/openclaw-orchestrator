@@ -104,6 +104,10 @@ export class DashboardServer {
       return this.handleListRuns(res);
     }
 
+    if (method === "DELETE" && pathname === "/api/runs") {
+      return this.handleDeleteAllRuns(res);
+    }
+
     if (method === "POST" && pathname === "/api/runs") {
       return this.handleSubmitGoal(req, res);
     }
@@ -195,6 +199,19 @@ export class DashboardServer {
     this.broadcastSSE({ type: "run:deleted", runId });
     
     json(res, 200, { deleted: true, runId });
+  }
+
+  private handleDeleteAllRuns(res: ServerResponse): void {
+    // Clear in-memory cache
+    this.runs.clear();
+    
+    // Clear persistent store
+    const count = this.runStore?.deleteAll() ?? 0;
+    
+    // Broadcast clear event
+    this.broadcastSSE({ type: "run:deleted", runId: "*" });
+    
+    json(res, 200, { deleted: true, count });
   }
 
   private async handleSubmitGoal(req: IncomingMessage, res: ServerResponse): Promise<void> {

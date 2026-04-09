@@ -43,7 +43,9 @@ Rules:
 - Use results from previous steps to inform your next decision
 - Don't repeat tasks that already succeeded
 - Include relevant context from prior results in task descriptions when a downstream task needs it
-- When all needed info is gathered, use "finish" to provide the final answer`;
+- When all needed info is gathered, use "finish" to provide the final answer
+- DO NOT assign tasks to the orchestrator itself (Mobot_v2); you must delegate to specialized agents
+- If retrying a failed task, ensure it is assigned to the correct specialized agent based on capabilities`;
 }
 
 // ---------------------------------------------------------------------------
@@ -287,9 +289,11 @@ export class Orchestrator {
   }
 
   private parseAction(raw: string): OrchestratorAction {
-    // Try to extract JSON from the response — the LLM sometimes wraps it in
-    // markdown fences or prefixes it with explanatory prose.
-    const jsonStr = raw
+    // Strip <think> blocks
+    let cleaned = raw.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    
+    // Try to extract JSON from the response
+    const jsonStr = cleaned
       .replace(/^```(?:json)?\s*\n?/m, "")
       .replace(/\n?```\s*$/m, "")
       .trim();
@@ -298,22 +302,23 @@ export class Orchestrator {
     try {
       parsed = JSON.parse(jsonStr);
     } catch {
-      // LLM may have returned text before/after the JSON — try to extract it
-      const match = raw.match(/\{[\s\S]*\}/);
-      if (match) {
+      // LLM may have returned text before/after the JSON — try to extract it from between the first { and the last }
+      const startIndex = cleaned.indexOf("{");
+      const endIndex = cleaned.lastIndexOf("}");
+      
+      if (startIndex !== -1 && endIndex !== -1 && endIndex >= startIndex) {
         try {
-          parsed = JSON.parse(match[0]);
+          parsed = JSON.parse(cleaned.substring(startIndex, endIndex + 1));
         } catch {
-          // JSON may be truncated — try to salvage a finish action
-          const salvaged = this.salvageTruncatedFinish(raw);
+          const salvaged = this.salvageTruncatedFinish(cleaned);
           if (salvaged) return salvaged;
 
           log.error("Failed to parse orchestrator action", { raw: raw.slice(0, 500) });
           throw new ParseError(`Orchestrator returned invalid JSON`);
         }
       } else {
-        // No {…} found at all — JSON may be truncated without a closing brace
-        const salvaged = this.salvageTruncatedFinish(raw);
+        // No {…} found at all
+        const salvaged = this.salvageTruncatedFinish(cleaned);
         if (salvaged) return salvaged;
 
         log.error("Failed to parse orchestrator action", { raw: raw.slice(0, 500) });

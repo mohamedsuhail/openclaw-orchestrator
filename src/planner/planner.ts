@@ -35,7 +35,7 @@ export type PlannerOptions = {
   /** Or a custom agent adapter for planning. */
   plannerAgent?: AgentAdapter;
   /** Available agent names/capabilities for task assignment hints. */
-  availableAgents?: string[];
+  availableAgents?: AgentAdapter[];
 };
 
 type PlannerLlmResponse = {
@@ -51,7 +51,7 @@ type PlannerLlmResponse = {
 export class Planner {
   private gateway?: GatewayClient;
   private plannerAgent?: AgentAdapter;
-  private availableAgents: string[];
+  private availableAgents: AgentAdapter[];
 
   constructor(opts: PlannerOptions) {
     this.gateway = opts.gateway;
@@ -69,7 +69,12 @@ export class Planner {
   private buildPrompt(goal: string): string {
     let prompt = `Goal: ${goal}`;
     if (this.availableAgents.length > 0) {
-      prompt += `\n\nAvailable agents: ${this.availableAgents.join(", ")}`;
+      prompt += `\n\nAvailable agents:\n${this.availableAgents.map((a) => {
+        let line = `- "${a.name}"`;
+        if (a.description) line += `: ${a.description}`;
+        if (a.capabilities?.length) line += ` [${a.capabilities.join(", ")}]`;
+        return line;
+      }).join("\n")}\n\nAssign each task to the most appropriate agent using the "assignTo" field. If omitted, the first available agent is used.`;
     }
     return prompt;
   }
@@ -98,8 +103,17 @@ export class Planner {
   }
 
   private parseResponse(raw: string): PlannerLlmResponse {
-    // Strip markdown fences if present
-    const cleaned = raw.replace(/^```(?:json)?\s*\n?/m, "").replace(/\n?```\s*$/m, "").trim();
+    // Strip <think> blocks
+    let cleaned = raw.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    
+    // Extract JSON from between the first { and the last }
+    const startIndex = cleaned.indexOf("{");
+    const endIndex = cleaned.lastIndexOf("}");
+    if (startIndex !== -1 && endIndex !== -1 && endIndex >= startIndex) {
+      cleaned = cleaned.substring(startIndex, endIndex + 1);
+    } else {
+      cleaned = cleaned.replace(/^```(?:json)?\s*\n?/m, "").replace(/\n?```\s*$/m, "").trim();
+    }
 
     let parsed: PlannerLlmResponse;
     try {

@@ -416,7 +416,7 @@ export class GatewayClient {
       this.pendingChats.delete(payload.runId);
       const text = payload.message?.content
         ?.map((c) => c.text ?? "")
-        .join("") ?? JSON.stringify(payload.message);
+        .join("") ?? (payload.message ? JSON.stringify(payload.message) : "");
       p.resolve(text);
     } else if (payload.state === "error") {
       clearTimeout(p.timer);

@@ -48,7 +48,7 @@ type DeepPartial<T> = {
 const DEFAULTS: OrchestratorConfig = {
   timeouts: {
     gatewayDefault: 30_000,
-    chat: 120_000,
+    chat: 300_000,
     healthCheck: 1_500,
     httpHealth: 5_000,
     adapterDefault: 60_000,

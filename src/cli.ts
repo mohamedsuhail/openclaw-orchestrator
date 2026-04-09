@@ -82,7 +82,7 @@ async function runViaDashboard(
       finalAnswer?: string;
       steps?: Array<{
         stepNumber: number;
-        tasks: Array<{ id: string; status: string; task: string; result?: { output?: string } }>;
+        tasks: Array<{ id: string; status: string; task: string; agent?: string; result?: { output?: string } }>;
       }>;
       error?: string;
       startedAt: number;
@@ -96,7 +96,8 @@ async function runViaDashboard(
         for (const step of run.steps) {
           console.log(`\n  Step ${step.stepNumber}:`);
           for (const task of step.tasks) {
-            console.log(`    [${task.status}] ${task.id}: ${task.result?.output?.slice(0, 200) ?? "—"}`);
+            const agentStr = task.agent ? ` (Agent: ${task.agent})` : "";
+            console.log(`    [${task.status}]${agentStr} ${task.id}: ${task.result?.output?.slice(0, 200) ?? "—"}`);
           }
         }
       }
@@ -160,7 +161,8 @@ program
         for (const step of result.steps) {
           console.log(`\n  Step ${step.stepNumber}:`);
           for (const task of step.tasks) {
-            console.log(`    [${task.status}] ${task.id}: ${task.result?.output?.slice(0, 200) ?? "—"}`);
+            const agentStr = task.agent ? ` (Agent: ${task.agent})` : "";
+            console.log(`    [${task.status}]${agentStr} ${task.id}: ${task.result?.output?.slice(0, 200) ?? "—"}`);
           }
         }
       }
