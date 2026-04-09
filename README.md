@@ -1,5 +1,7 @@
 # openclaw-orchestrator
 
+> **Note:** This is a customized fork featuring a custom 3D Mobot Control Center simulation. The original project, `openclaw-orchestrator`, was created by [zeynepyorulmaz](https://github.com/zeynepyorulmaz/openclaw-orchestrator). All credit for the core orchestration logic and backend goes to the original author.
+
 # Selected by OpenClaw team for 5000 CLAW tokens!
 
 Adaptive multi-agent orchestration for [OpenClaw](https://openclaw.app) gateways.
