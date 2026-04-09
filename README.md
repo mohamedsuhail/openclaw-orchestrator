@@ -49,6 +49,14 @@ Orchestrator (LLM planner, no tools)
 [![Star History Chart](https://api.star-history.com/svg?repos=zeynepyorulmaz/openclaw-orchestrator&type=date&legend=top-left)](https://www.star-history.com/#zeynepyorulmaz/openclaw-orchestrator&type=date&legend=top-left)
 ## Features
 
+### 🌟 Mobot Control Center (Custom 3D Simulation)
+- **Interactive 3D Dashboard:** A beautifully rendered Pixar/Chibi style office environment built with Three.js.
+- **Dynamic Agent Animations:** Watch agents (`Health coach`, `Devops`, and `Marketsight`) physically move to different stations (Web Servers, File Servers, Cron Schedulers) as they execute tasks in real-time.
+- **Visual Planning Phase:** The orchestrator (`Mobot_V2`) paces and faces a whiteboard while breaking down tasks and routing them.
+- **Celebratory Success:** Agents perform a jump and display a green success badge over their heads when a task completes successfully.
+- **Idle Behaviors:** Agents feature subtle idle animations like breathing and head-bobbing while waiting for instructions.
+
+### Core Orchestrator Features
 - **Adaptive loop** — LLM decides what to do next based on accumulated results, not a rigid pre-planned DAG
 - **Multi-agent routing** — tasks are assigned to the best agent by name or capability (researcher, coder, analyst, or any custom agent)
 - **Dynamic agent discovery** — agent metadata (description, capabilities, role prompt) loaded from each agent's SOUL.md on the gateway
